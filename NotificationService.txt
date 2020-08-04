@@ -1,0 +1,66 @@
+package pe.com.empresa.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.InputStreamSource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import pe.com.empresa.service.NotificationService;
+import reactor.core.publisher.Mono;
+
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import java.io.*;
+import java.nio.file.Files;
+
+@Service
+public class NotificationServiceImpl implements NotificationService {
+
+    @Autowired
+    private JavaMailSender emailSender;
+
+    @Override
+    public Mono<String> sendEmail(MultipartFile multipartFile) throws MessagingException, IOException {
+        //if( multipartFile.isEmpty())
+            //return Mono.just("vacio");
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setFrom("noreply@baeldung.com");
+        helper.setTo("abromero2102@gmail.com");
+        helper.setSubject("Test email");
+        helper.setText("Text");
+        /*FileSystemResource file
+                = new FileSystemResource(new File("C:/Users/brian/Desktop/tocha/aaaa.docx"));
+        helper.addAttachment("Document.docx", file);*/
+        FileSystemResource file
+                = new FileSystemResource(multipartToFile(multipartFile,"CV Carlo Fajardo.pdf"));
+        helper.addAttachment("CV Carlo Fajardo.pdf", file);
+
+        emailSender.send(message);
+        return Mono.just("si");
+    }
+
+    public File convert(MultipartFile file) throws IOException {
+        File convFile = new File(file.getOriginalFilename());
+        convFile.createNewFile();
+        FileOutputStream fos = new FileOutputStream(convFile);
+        fos.write(file.getBytes());
+        fos.close();
+        return convFile;
+    }
+
+    public  static File multipartToFile(MultipartFile multipart, String fileName) throws IllegalStateException, IOException {
+        File convFile = new File(System.getProperty("java.io.tmpdir")+"/"+fileName);
+        multipart.transferTo(convFile);
+        return convFile;
+    }
+}

@@ -1,0 +1,19 @@
+****************************************
+
+Primero : si haces un snapshot de la base de de datos entonces ciertamente el snapshot backup no toma los File Stream.
+
+Segundo: Si haces un Full backup los FILESTREAM SI SON TOMADOS EN CUENTA, Osea el motor de base de datos hace Backup de Todo y Me refiero a todo lo que exista en la BD.
+
+Tercero: Si haces backup por file group y no incluyes el backup del file group en el que esta el filestream, entonces no tendras los filestream. 
+
+Ahora bie, con relacion a la pregunta original, esto es lo que opino: si los archivos que vas almacenar supera 1MB entonces usas FS, de lo contrario almacenalo en la base 
+de datos, es lo que yo haria, dado que los archivos en una ruta de Sistema operativo no son controlados por SQL( si ya se que los archivos de la BD se almacenan en el Sitema 
+Operativo), con relacion al rendimiento eso es un tema largo, podriamos escribir un libro solo para hablar de los archgivos binarios, file stream y rendimiento, pero te 
+adelanto que no estan sencillo como dicen que los archivos en el sistema operativo te da mejor rendimiento.
+
+****************************************
+
+
+
+
+
